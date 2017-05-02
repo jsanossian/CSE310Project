@@ -10,19 +10,15 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Shawn
- */
 public class Server {
     
     private static volatile boolean running = true;
-    private static final int port = 25564;
+    private static final int PORT = 25564;
     private static ServerSocket ss;
     
     public static void main(String[] args) {
         try {
-            ss = new ServerSocket(port);
+            ss = new ServerSocket(PORT);
             while(running && !ss.isClosed()) {
                 Socket s = ss.accept();
                 ServerCommunication t = new ServerCommunication(s);

@@ -1,17 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Messages;
 
 import Constants.MessageType;
 import java.io.Serializable;
 
-/**
- *
- * @author Shawn
- */
 public class Message implements Serializable {
     private MessageType type;
     private String info;
@@ -32,4 +23,3 @@ public class Message implements Serializable {
         this.type = type;
     }
 }
-
