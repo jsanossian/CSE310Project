@@ -12,6 +12,10 @@ public class Player {
     String id;
     String address;
 
+    public Player(String id) {
+        this.id = id;
+    }
+
     public Player(String id, String address) {
         this.id = id;
         this.address = address;

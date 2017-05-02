@@ -13,8 +13,7 @@ import java.util.Vector;
  */
 public class Game {
     Player playerX, playerO;
-    
-    //
+    int id;
     char[] board;
 
     public Game() {
@@ -137,5 +136,20 @@ public class Game {
     }
 
 
-    
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public char[] getBoard() {
+        return board;
+    }
+
+    public void setBoard(char[] board) {
+        this.board = board;
+    }
+    //
 }
