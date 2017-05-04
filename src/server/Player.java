@@ -32,7 +32,7 @@ public class Player {
         try {
             ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
             // Socket is not guaranteed to write all bytes - loop until all bytes are written
-            while (buf.hasRemaining()) {
+            while (buf.hasRemaining() && socket.isOpen()) {
                 socket.write(buf);
             }
         } catch (IOException e) {
@@ -65,10 +65,6 @@ public class Player {
                     int pos = Integer.parseInt(words[1]) - 1;
                     if (game.getCurrentPlayer() == this) {
                         if (game.place(pos)) {
-                            // Send full board to both players
-                            String response = "200 OK\r\nPLACE\r\n" + new String(game.getBoard());
-                            game.getPlayerX().sendMessage(response);
-                            game.getPlayerO().sendMessage(response);
                             // Check if someone won
                             game.checkVictory();
                         } else {
@@ -113,9 +109,47 @@ public class Player {
                 } else {
                     // This player is not available
                     if (state == PlayerState.CONNECTING)
-                        sendMessage("400 ERROR\r\nPLAY\r\nYou must be logged in to play!");
+                        sendMessage("400 ERROR\r\nPLAY\r\nYou must be logged in to play/observe!");
                     else if (state == PlayerState.INGAME)
-                        sendMessage("400 ERROR\r\nPLAY\r\nYou can only play one game at a time!");
+                        sendMessage("400 ERROR\r\nPLAY\r\nYou can only play/observe one game at a time!");
+                }
+                break;
+            case "OBSERVE":
+                if (words.length > 1 && state == PlayerState.AVAILABLE) {
+                    Game game = Game.gamesById.get(Integer.parseInt(words[1]));
+                    if (game != null) {
+                        game.addObserver(this);
+                        sendMessage("200 OK\r\nOBSERVE\r\n" + game.getId());
+                    } else {
+                        // Game not found
+                        sendMessage("400 ERROR\r\nOBSERVE\r\nInvalid game ID!");
+                    }
+                } else {
+                    // This player is not available
+                    if (state == PlayerState.CONNECTING)
+                        sendMessage("400 ERROR\r\nOBSERVE\r\nYou must be logged in to play/observe!");
+                    else if (state == PlayerState.INGAME)
+                        sendMessage("400 ERROR\r\nOBSERVE\r\nYou can only play/observe one game at a time!");
+                }
+                break;
+            case "UNOBSERVE":
+                if (words.length > 1) {
+                    Game game = Game.gamesById.get(Integer.parseInt(words[1]));
+                    if (game != null && game.hasObserver(this)) {
+                        game.removeObserver(this);
+                        sendMessage("200 OK\r\nUNOBSERVE\r\n" + game.getId());
+                    } else {
+                        // Game does not exist or player is not observing
+                        sendMessage("400 ERROR\r\nUNOBSERVE\r\nYou are not observing that game!");
+                    }
+                }
+                break;
+            case "SAY":
+                if (words.length > 1 && game != null) {
+                    game.sendAll("200 OK\r\nSAY\r\n" + name + ": " + message.substring(4));
+                } else {
+                    // Player is not in a game
+                    sendMessage("400 ERROR\r\nSAY\r\nYou are not in a game!");
                 }
                 break;
         }

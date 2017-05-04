@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -11,6 +12,7 @@ public class Game {
     private Player playerX, playerO;
     private Player curPlayer;
     private Player winner;
+    private ArrayList<Player> observers = new ArrayList<>();
     private int id;
     private char[] board;
 
@@ -43,13 +45,28 @@ public class Game {
         playerO.game = null;
         playerX.state = PlayerState.AVAILABLE;
         playerO.state = PlayerState.AVAILABLE;
-        winner.sendMessage("200 OK\r\nENDGAME\r\nYou won!");
-        if (playerX == winner) {
-            playerO.sendMessage("200 OK\r\nENDGAME\r\nYou lost!");
-        } else {
-            playerX.sendMessage("200 OK\r\nENDGAME\r\nYou lost!");
+        for (Player observer : observers) {
+            observer.game = null;
+            observer.state = PlayerState.AVAILABLE;
         }
+        sendAll("200 OK\r\nENDGAME\r\n" + winner.name + " won!");
         gamesById.remove(id);
+    }
+
+    public void addObserver(Player player) {
+        observers.add(player);
+        player.game = this;
+        player.state = PlayerState.INGAME;
+    }
+
+    public void removeObserver(Player player) {
+        observers.remove(player);
+        player.game = null;
+        player.state = PlayerState.AVAILABLE;
+    }
+
+    public boolean hasObserver(Player player) {
+        return observers.contains(player);
     }
 
     public boolean place(int pos) {
@@ -59,11 +76,14 @@ public class Game {
         }
         if (pos >= 0 && pos < board.length && board[pos] == ' ') {
             board[pos] = marker;
+            // Switch current player
             if (curPlayer == playerX) {
                 curPlayer = playerO;
             } else {
                 curPlayer = playerX;
             }
+            // Send full board to all players
+            sendAll("200 OK\r\nPLACE\r\n" + new String(board));
             return true;
         }
         return false;
@@ -77,6 +97,15 @@ public class Game {
         if (evaluateO()) {
             winner = playerX;
             end();
+        }
+    }
+
+    public void sendAll(String message) {
+        // Send a message to all players in the game
+        playerX.sendMessage(message);
+        playerO.sendMessage(message);
+        for (Player observer : observers) {
+            observer.sendMessage(message);
         }
     }
 

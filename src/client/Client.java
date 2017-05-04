@@ -9,7 +9,7 @@ public class Client {
             return;
         }
         Network network = new Network(new InetSocketAddress(args[0], Integer.parseInt(args[1])));
-        new Input(network);
+        new InputThread(network).start();
         while (true) {
             network.pollInput();
         }

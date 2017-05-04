@@ -78,6 +78,15 @@ public class Network {
                     case "PLAY":
                         System.out.println("Started a game with " + lines[2]);
                         break;
+                    case "OBSERVE":
+                        System.out.println("Observing game with ID " + lines[2]);
+                        break;
+                    case "UNOBSERVE":
+                        System.out.println("Stopped observing game with ID " + lines[2]);
+                        break;
+                    case "SAY":
+                        System.out.println(lines[2]);
+                        break;
                     case "ENDGAME":
                         System.out.println("Game over! " + lines[2]);
                         break;
