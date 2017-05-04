@@ -17,9 +17,11 @@ public class Network {
 
     public Network(InetSocketAddress address) {
         try {
+            // Create non-blocking server socket
             selector = Selector.open();
             serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
+            // We are interested when a client tries to connect
             serverSocket.register(selector, SelectionKey.OP_ACCEPT);
             serverSocket.bind(address);
         } catch (IOException e) {
@@ -29,12 +31,15 @@ public class Network {
 
     public void pollInput() {
         try {
+            // Check if any of the sockets have actions pending (blocking)
             selector.select();
             Set<SelectionKey> keys = selector.selectedKeys();
             for (SelectionKey key : keys) {
                 if (key.isAcceptable()) {
+                    // Server socket has a client pending, so accept it
                     accept(key);
                 } else if (key.isReadable()) {
+                    // Socket has a read pending, so read it
                     read(key);
                 }
             }
@@ -46,8 +51,10 @@ public class Network {
 
     private void accept(SelectionKey key) {
         try {
+            // Create a non-blocking socket
             SocketChannel socket = serverSocket.accept();
             socket.configureBlocking(false);
+            // We are interested when the socket has a read pending
             socket.register(selector, SelectionKey.OP_READ);
             playersBySocket.put(socket, new Player(socket));
         } catch (IOException e) {
@@ -70,10 +77,12 @@ public class Network {
             close(key);
             return;
         }
+        // Convert the bytes read to a string
         buf.flip();
         byte[] bytes = new byte[buf.remaining()];
         buf.get(bytes);
         String message = new String(bytes);
+        // Get the player pertaining to this socket and dispatch the message
         Player player = playersBySocket.get(socket);
         if (player != null) {
             player.receiveMessage(message);

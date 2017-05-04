@@ -31,6 +31,7 @@ public class Player {
     public void sendMessage(String message) {
         try {
             ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
+            // Socket is not guaranteed to write all bytes - loop until all bytes are written
             while (buf.hasRemaining()) {
                 socket.write(buf);
             }
@@ -51,9 +52,11 @@ public class Player {
                         playersByName.put(name, this);
                         sendMessage("200 OK\r\nLOGIN\r\n" + name);
                     } else {
+                        // Player with name already exists
                         sendMessage("400 ERROR\r\nLOGIN\r\nName taken!");
                     }
                 } else {
+                    // Player must be already logged in
                     sendMessage("400 ERROR\r\nLOGIN\r\nAlready logged in!");
                 }
                 break;
@@ -62,20 +65,25 @@ public class Player {
                     int pos = Integer.parseInt(words[1]) - 1;
                     if (game.getCurrentPlayer() == this) {
                         if (game.place(pos)) {
+                            // Send full board to both players
                             String response = "200 OK\r\nPLACE\r\n" + new String(game.getBoard());
                             game.getPlayerX().sendMessage(response);
                             game.getPlayerO().sendMessage(response);
+                            // Check if someone won
                             game.checkVictory();
                         } else {
+                            // Either pos < 0, pos > 8, or the spot is already taken
                             sendMessage("400 ERROR\r\nPLACE\r\nInvalid spot!");
                         }
                     } else {
+                        // It is not this player's turn
                         sendMessage("400 ERROR\r\nPLACE\r\nNot your turn!");
                     }
                 }
                 break;
             case "WHO":
                 String response = "200 OK\r\nWHO";
+                // Create list of available players
                 for (Player player : playersByName.values()) {
                     if (player.state == PlayerState.AVAILABLE) {
                         response += "\r\n" + player.name;
@@ -85,6 +93,7 @@ public class Player {
                 break;
             case "GAMES":
                 response = "200 OK\r\nGAMES";
+                // Create list of ongoing games
                 for (Game game : Game.gamesById.values()) {
                     response += "\r\nID: " + game.getId() + " Players: " + game.getPlayerX().name + " " + game.getPlayerO().name;
                 }
@@ -94,12 +103,15 @@ public class Player {
                 if (words.length > 1 && state == PlayerState.AVAILABLE) {
                     Player player = playersByName.get(words[1]);
                     if (player != null && player.state == PlayerState.AVAILABLE && player != this) {
+                        // Start game with the selected player
                         Game game = new Game(this, player);
                         game.start();
                     } else {
+                        // Either the selected player is not available, or this player tried to play with himself
                         sendMessage("400 ERROR\r\nPLAY\r\nPlayer not available!");
                     }
                 } else {
+                    // This player is not available
                     if (state == PlayerState.CONNECTING)
                         sendMessage("400 ERROR\r\nPLAY\r\nYou must be logged in to play!");
                     else if (state == PlayerState.INGAME)

@@ -20,25 +20,22 @@ public class Game {
     }
 
     public boolean start() {
-        if (playerX == null || playerO == null) {
-            return false;
-        } else {
-            curPlayer = playerX;
-            winner = curPlayer;
-            board = new char[9];
-            for (int i = 0; i < board.length; i++) {
-                board[i] = ' ';
-            }
-            id = curId++;
-            gamesById.put(id, this);
-            playerX.game = this;
-            playerO.game = this;
-            playerX.state = PlayerState.INGAME;
-            playerO.state = PlayerState.INGAME;
-            playerX.sendMessage("200 OK\r\nPLAY\r\n" + playerO.name);
-            playerO.sendMessage("200 OK\r\nPLAY\r\n" + playerX.name);
-            return true;
+        curPlayer = playerX;
+        winner = curPlayer;
+        board = new char[9];
+        for (int i = 0; i < board.length; i++) {
+            board[i] = ' ';
         }
+        // Assign a unique id to this game
+        id = curId++;
+        gamesById.put(id, this);
+        playerX.game = this;
+        playerO.game = this;
+        playerX.state = PlayerState.INGAME;
+        playerO.state = PlayerState.INGAME;
+        playerX.sendMessage("200 OK\r\nPLAY\r\n" + playerO.name);
+        playerO.sendMessage("200 OK\r\nPLAY\r\n" + playerX.name);
+        return true;
     }
 
     public void end() {

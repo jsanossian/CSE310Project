@@ -10,8 +10,9 @@ public class Network {
 
     public Network(InetSocketAddress address) {
         try {
+            // Create blocking socket
             socket = SocketChannel.open();
-            socket.connect(new InetSocketAddress("localhost", 12345));
+            socket.connect(address);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -21,10 +22,12 @@ public class Network {
         ByteBuffer buf = ByteBuffer.allocate(1024);
         try {
             socket.read(buf);
+            // Convert the bytes read to a string
             buf.flip();
             byte[] bytes = new byte[buf.remaining()];
             buf.get(bytes);
             String message = new String(bytes);
+            // Dispatch the message
             receiveMessage(message);
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,9 +39,8 @@ public class Network {
         try {
             ByteBuffer buf = ByteBuffer.wrap(message.getBytes());
             synchronized (this) {
-                while (buf.hasRemaining()) {
-                    socket.write(buf);
-                }
+                // Blocking socket is guaranteed to write all bytes
+                socket.write(buf);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,6 +84,7 @@ public class Network {
                 }
                 break;
             case "400 ERROR":
+                // Print error message
                 if (lines.length > 2)
                     System.out.println(lines[2]);
                 break;
