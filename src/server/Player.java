@@ -75,6 +75,9 @@ public class Player {
                         // It is not this player's turn
                         sendMessage("400 ERROR\r\nPLACE\r\nNot your turn!");
                     }
+                } else {
+                    // Not in a game
+                    sendMessage("400 ERROR\r\nPLACE\r\nNot in a game!");
                 }
                 break;
             case "WHO":

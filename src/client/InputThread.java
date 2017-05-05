@@ -35,7 +35,7 @@ public class InputThread extends Thread {
                     }
                     break;
                 case "PLACE":
-                    if (words.length > 1) {
+                    if (words.length > 1 && words[1].matches("^\\d+$")) {
                         network.sendMessage("PLACE " + words[1]);
                     }
                     break;
@@ -54,12 +54,12 @@ public class InputThread extends Thread {
                     }
                     break;
                 case "OBSERVE":
-                    if (words.length > 1) {
+                    if (words.length > 1 && words[1].matches("^\\d+$")) {
                         network.sendMessage("OBSERVE " + words[1]);
                     }
                     break;
                 case "UNOBSERVE":
-                    if (words.length > 1) {
+                    if (words.length > 1 && words[1].matches("^\\d+$")) {
                         network.sendMessage("UNOBSERVE " + words[1]);
                     }
                     break;
