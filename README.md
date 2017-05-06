@@ -1,7 +1,10 @@
 # CSE310Project
 CSE 310 Data Communication Final Project: Tic Tac toe game
 
-Group Number: 44
-Group Members: Joseph Sanossian
-               Naum Marten
-               Wan Jong Kim
+Group Number: 44 <br>
+
+Group Members: <br>
+
+Joseph Sanossian <br>
+Naum Marten <br>
+Wan Jong Kim
