@@ -7,4 +7,5 @@ Group Members: <br>
 
 Joseph Sanossian <br>
 Naum Marten <br>
-Wan Jong Kim
+Wan Jong Kim <br>
+Maksym Trojanowski
